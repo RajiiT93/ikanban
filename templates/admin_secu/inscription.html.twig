@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block monTitre %}
+    Inscription sur le site
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4" style="max-width: 600px;">
+    {{ form_start(form) }}
+
+        {{ form_row(form.nom, {
+            attr: { placeholder: "Saisis ton login", class: "form-control" },
+            label: "Votre nom d'utilisateur"
+        }) }}
+
+        {{ form_row(form.prenom, {
+            attr: { placeholder: "Saisis ton prénom", class: "form-control" }
+        }) }}
+
+        {{ form_row(form.email, {
+            attr: { placeholder: "Saisis ton e-mail", class: "form-control" }
+        }) }}
+
+        {{ form_row(form.role, {
+            attr: { placeholder: "Saisis votre rôle", class: "form-control" }
+        }) }}
+
+        {{ form_row(form.service, {
+            attr: { placeholder: "Saisis le service", class: "form-control" }
+        }) }}
+
+        {{ form_row(form.motDePasse, {
+            attr: { placeholder: "Saisis ton mot de passe", class: "form-control" }
+        }) }}
+
+        {{ form_row(form.verifMotDePasse, {
+            attr: { placeholder: "Confirme ton mot de passe", class: "form-control" }
+        }) }}
+
+        <button type="submit" class="btn btn-primary w-100 mt-3">Valider</button>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
