@@ -1,12 +1,10 @@
 security:
-    enable_authenticator_manager: true  # ✅ Nécessaire pour activer login/logout automatiques
+    enable_authenticator_manager: true
 
-    # 🔐 Hachage du mot de passe
     password_hashers:
         App\Entity\Utilisateur:
             algorithm: auto
 
-    # 👤 Chargement des utilisateurs via entité Utilisateur
     providers:
         utilisateurs_provider:
             entity:
@@ -21,26 +19,17 @@ security:
         main:
             lazy: true
             provider: utilisateurs_provider
-
             form_login:
-                login_path: connexion      # URL de connexion (route "connexion")
+                login_path: connexion
                 check_path: connexion
-
+                default_target_path: /projet  # 🔥 ICI ➔ toujours /projet après connexion
             logout:
-                path: logout               # URL de déconnexion
-                target: /                  # Redirection après logout
+                path: logout
+                target: /
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
-
-when@test:
-    security:
-        password_hashers:
-            App\Entity\Utilisateur:
-                algorithm: auto
-                cost: 4
-                time_cost: 3
-                memory_cost: 10
+        - { path: ^/, roles: ROLE_USER }

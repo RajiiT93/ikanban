@@ -1,0 +1,47 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.btn {
+    margin-right: 5px;
+}
+
+.alert-info {
+    background-color: #e7f3fe;
+    border-color: #bee5eb;
+    color: #31708f;
+}
+
+.list-group-item {
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #eee;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+h6 {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.badge {
+    font-size: 0.8rem;
+}

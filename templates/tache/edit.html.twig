@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Tâche{% endblock %}
+
+{% block monTitre %}
+    Modifier la tâche
+{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary mt-2">Modifier</button>
+    {{ form_end(form) }}
+{% endblock %}

@@ -66,9 +66,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $verifMotDePasse = null;
 
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Projet::class)]
+    private Collection $projets;
+
     public function __construct()
     {
         $this->groupe = new ArrayCollection();
+        $this->projets = new ArrayCollection();
     }
 
     // 🔐 UserInterface + PasswordAuthenticatedUserInterface
@@ -85,7 +89,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return [$this->role ?? 'ROLE_USER'];
+        $roles = [];
+
+        if ($this->role) {
+            $roles[] = $this->role;
+        }
+
+        // Toujours garantir ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
     public function eraseCredentials(): void
@@ -210,6 +223,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setVerifMotDePasse(?string $verifMotDePasse): self
     {
         $this->verifMotDePasse = $verifMotDePasse;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Projet>
+     */
+    public function getProjets(): Collection
+    {
+        return $this->projets;
+    }
+
+    public function addProjet(Projet $projet): static
+    {
+        if (!$this->projets->contains($projet)) {
+            $this->projets->add($projet);
+            $projet->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProjet(Projet $projet): static
+    {
+        if ($this->projets->removeElement($projet)) {
+            // set the owning side to null (unless already changed)
+            if ($projet->getUtilisateur() === $this) {
+                $projet->setUtilisateur(null);
+            }
+        }
+
         return $this;
     }
 }

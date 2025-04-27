@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Tâche{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Créer une Tâche pour le Projet</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.titre) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.statut) }}
+        {{ form_row(form.deadline) }}
+
+        <button class="btn btn-primary mt-3">Créer</button>
+    {{ form_end(form) }}
+
+{% endblock %}

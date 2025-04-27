@@ -2,7 +2,13 @@
 
 {% block title %}Accueil{% endblock %}
 
-{% block body %}
-<h1>Ici l'accueil</h1>
+{% block monTitre %}
+Bienvenue sur iKanban 🚀
+{% endblock %}
 
+{% block body %}
+    <p class="text-center mt-4">Connecté en tant que {{ app.user.nom }}</p>
+    <p class="text-center">
+        <a href="{{ path('projet_index') }}" class="btn btn-primary">Voir mes Projets</a>
+    </p>
 {% endblock %}

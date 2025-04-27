@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Projets{% endblock %}
+
+{% block monTitre %}
+    🎯 Bienvenue {{ app.user.nom }} !
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success text-center">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>📚 Liste de vos projets</h2>
+            <a href="{{ path('projet_new') }}" class="btn btn-success">➕ Ajouter un projet</a>
+        </div>
+
+        {% if projets is not empty %}
+            <table class="table table-hover table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Actions</th> {# ✅ Plus de dates inutiles #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for projet in projets %}
+                        <tr>
+                            <td>{{ projet.nom }}</td>
+                            <td>
+                                <a href="{{ path('projet_edit', { id: projet.id }) }}" class="btn btn-warning btn-sm">✏️ Modifier</a>
+
+                                <form method="post" action="{{ path('projet_delete', { id: projet.id }) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Supprimer</button> {# ✅ LE BOUTON EST MAINTENANT FERMÉ #}
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info text-center">
+                Vous n'avez encore aucun projet. <br> 🚀 Lancez-vous en créant votre premier projet !
+            </div>
+        {% endif %}
+        
+    </div>
+{% endblock %}

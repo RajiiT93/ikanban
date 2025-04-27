@@ -2,9 +2,56 @@
 
 {% block title %}Bienvenue{% endblock %}
 
+{% block monTitre %}
+    Bienvenue {{ app.user.nom|capitalize }} 👋
+{% endblock %}
+
 {% block body %}
-    <div style="text-align: center; margin-top: 50px;">
-        <h1>Bienvenue {{ user.prenom }} 🎉</h1>
-        <p>Ton compte a bien été créé. Ravi de te voir ici !</p>
+    {% if projets is empty %}
+        <div class="alert alert-info mt-4 text-center">
+            Vous n'avez aucun projet pour le moment 💤
+        </div>
+    {% else %}
+        <div class="row mt-4">
+            {% for projet in projets %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ projet.nom }}</h5>
+                            <p class="card-text">
+                                <strong>Date de début :</strong> {{ projet.dateDebut ? projet.dateDebut|date('d/m/Y') : 'Non défini' }}<br>
+                                <strong>Date de fin :</strong> {{ projet.dateFin ? projet.dateFin|date('d/m/Y') : 'Non défini' }}<br>
+                            </p>
+                            <a href="{{ path('projet_edit', {id: projet.id}) }}" class="btn btn-warning btn-sm">✏️ Modifier</a>
+                            <form method="post" action="{{ path('projet_delete', {id: projet.id}) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                <button class="btn btn-danger btn-sm">🗑️ Supprimer</button>
+                            </form>
+
+                            <div class="mt-3">
+                                <h6>Tâches :</h6>
+                                {% if tachesParProjet[projet.id] is not empty %}
+                                    <ul class="list-group mb-3">
+                                        {% for tache in tachesParProjet[projet.id] %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                {{ tache.titre }}
+                                                <small class="text-muted">{{ tache.deadline ? tache.deadline|date('d/m/Y') : 'Pas de deadline' }}</small>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted">Aucune tâche pour ce projet.</p>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{{ path('projet_new') }}" class="btn btn-primary">➕ Créer un nouveau projet</a>
     </div>
 {% endblock %}
