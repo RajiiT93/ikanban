@@ -48,7 +48,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $motDePasse = null;
 
     #[ORM\Column(type: "string", length: 20, nullable: true)]
-    private ?string $role = null;
+    private ?string $roles = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $photo = null;
@@ -89,16 +89,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        $roles = [];
-
-        if ($this->role) {
-            $roles[] = $this->role;
-        }
-
-        // Toujours garantir ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+       return[$this->roles];
     }
 
     public function eraseCredentials(): void
@@ -163,14 +154,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->motDePasse;
     }
 
-    public function getRole(): ?string
+    public function setRoles(?string $roles): self
     {
-        return $this->role;
-    }
-
-    public function setRole(?string $role): self
-    {
-        $this->role = $role;
+       if($roles ===null){
+        $this->roles="ROLE_USER";
+       }else{
+        $this->roles=$roles;
+       }
         return $this;
     }
 
