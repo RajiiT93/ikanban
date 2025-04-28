@@ -24,12 +24,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 50, nullable: true)]
-    #[Assert\Length(
-        min: 5,
-        max: 10,
-        minMessage: "Oui, il faut minimum 5 caractères.",
-        maxMessage: "Oui, il faut maximum 10 caractères."
-    )]
+    #[Assert\Length(min: 5, max: 10, minMessage: "Oui, il faut minimum 5 caractères.", maxMessage: "Oui, il faut maximum 10 caractères.")]
     private ?string $nom = null;
 
     #[ORM\Column(type: "string", length: 50, nullable: true)]
@@ -39,16 +34,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    #[Assert\Length(
-        min: 5,
-        max: 10,
-        minMessage: "Oui, il faut minimum 5 caractères.",
-        maxMessage: "Oui, il faut maximum 10 caractères."
-    )]
     private ?string $motDePasse = null;
 
     #[ORM\Column(type: "string", length: 20, nullable: true)]
-    private ?string $roles = null;
+    private ?string $roles = 'ROLE_USER';
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $photo = null;
@@ -56,14 +45,11 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "string", length: 100, nullable: true)]
     private ?string $service = null;
 
-    #[ORM\ManyToMany(targetEntity: "App\Entity\Groupe", inversedBy: "utilisateur")]
+    #[ORM\ManyToMany(targetEntity: Groupe::class, inversedBy: "utilisateur")]
     #[ORM\JoinTable(name: "utilisateur_groupe")]
     private Collection $groupe;
 
-    #[Assert\EqualTo(
-        propertyPath: "motDePasse",
-        message: "Les mots de passe ne correspondent pas."
-    )]
+    #[Assert\EqualTo(propertyPath: "motDePasse", message: "Les mots de passe ne correspondent pas.")]
     private ?string $verifMotDePasse = null;
 
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Projet::class)]
@@ -89,7 +75,22 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-       return[$this->roles];
+        $roles = [];
+
+        if ($this->roles !== null) {
+            $roles[] = $this->roles;
+        }
+
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+
+        return $roles;
+    }
+
+    public function getRole(): ?string
+    {
+        return $this->roles ?? 'ROLE_USER';
     }
 
     public function eraseCredentials(): void
@@ -104,7 +105,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function setId(int $id): self
+    public function setId(int $id): static
     {
         $this->id = $id;
         return $this;
@@ -115,7 +116,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->nom;
     }
 
-    public function setNom(?string $nom): self
+    public function setNom(?string $nom): static
     {
         $this->nom = $nom;
         return $this;
@@ -126,7 +127,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->prenom;
     }
 
-    public function setPrenom(?string $prenom): self
+    public function setPrenom(?string $prenom): static
     {
         $this->prenom = $prenom;
         return $this;
@@ -137,13 +138,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(?string $email): self
+    public function setEmail(?string $email): static
     {
         $this->email = $email;
         return $this;
     }
 
-    public function setMotDePasse(?string $motDePasse): self
+    public function setMotDePasse(?string $motDePasse): static
     {
         $this->motDePasse = $motDePasse;
         return $this;
@@ -154,13 +155,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->motDePasse;
     }
 
-    public function setRoles(?string $roles): self
+    public function setRoles(?string $roles): static
     {
-       if($roles ===null){
-        $this->roles="ROLE_USER";
-       }else{
-        $this->roles=$roles;
-       }
+        $this->roles = $roles ?? 'ROLE_USER';
         return $this;
     }
 
@@ -169,7 +166,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->photo;
     }
 
-    public function setPhoto(?string $photo): self
+    public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
         return $this;
@@ -180,7 +177,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->service;
     }
 
-    public function setService(?string $service): self
+    public function setService(?string $service): static
     {
         $this->service = $service;
         return $this;
@@ -191,7 +188,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->groupe;
     }
 
-    public function addGroupe(Groupe $groupe): self
+    public function addGroupe(Groupe $groupe): static
     {
         if (!$this->groupe->contains($groupe)) {
             $this->groupe[] = $groupe;
@@ -199,7 +196,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeGroupe(Groupe $groupe): self
+    public function removeGroupe(Groupe $groupe): static
     {
         $this->groupe->removeElement($groupe);
         return $this;
@@ -210,7 +207,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->verifMotDePasse;
     }
 
-    public function setVerifMotDePasse(?string $verifMotDePasse): self
+    public function setVerifMotDePasse(?string $verifMotDePasse): static
     {
         $this->verifMotDePasse = $verifMotDePasse;
         return $this;
@@ -237,7 +234,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeProjet(Projet $projet): static
     {
         if ($this->projets->removeElement($projet)) {
-            // set the owning side to null (unless already changed)
             if ($projet->getUtilisateur() === $this) {
                 $projet->setUtilisateur(null);
             }

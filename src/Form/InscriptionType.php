@@ -11,6 +11,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+
+
 
 class InscriptionType extends AbstractType
 {
@@ -21,7 +24,9 @@ class InscriptionType extends AbstractType
             ->add('prenom')
             ->add('email')
             ->add('motDePasse',PasswordType::class)
-            ->add('role')
+            ->add('role', HiddenType::class, [
+                'data' => 'ROLE_USER',  // tu mets la valeur ici
+            ])
           /*  ->add('photo') */
             ->add('service')
           /*  ->add('groupe', EntityType::class, [
