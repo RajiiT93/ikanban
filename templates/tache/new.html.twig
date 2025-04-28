@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{# {% extends 'base.html.twig' %}
 
 {% block title %}Nouvelle Tâche{% endblock %}
 
@@ -14,4 +14,41 @@
         <button class="btn btn-primary mt-3">Créer</button>
     {{ form_end(form) }}
 
+{% endblock %} #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une tâche - {{ projet.nom }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Ajouter une tâche pour le projet "{{ projet.nom }}"</h1>
+
+    {{ form_start(form) }}
+        <div class="mb-3">
+            {{ form_label(form.titre) }}
+            {{ form_widget(form.titre, { 'attr': { 'class': 'form-control' } }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, { 'attr': { 'class': 'form-control' } }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.statut) }}
+            {{ form_widget(form.statut, { 'attr': { 'class': 'form-control' } }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.deadline) }}
+            {{ form_widget(form.deadline, { 'attr': { 'class': 'form-control' } }) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Ajouter la tâche</button>
+    {{ form_end(form) }}
+
+    <div class="mt-4">
+        <a href="{{ path('app_projet_show', {'id': projet.id}) }}" class="btn btn-secondary">⬅️ Retour au projet</a>
+    </div>
+</div>
 {% endblock %}
