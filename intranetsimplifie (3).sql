@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : lun. 28 avr. 2025 à 01:05
+-- Généré le : mar. 29 avr. 2025 à 00:58
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -38,7 +38,10 @@ CREATE TABLE `doctrine_migration_versions` (
 --
 
 INSERT INTO `doctrine_migration_versions` (`version`, `executed_at`, `execution_time`) VALUES
-('DoctrineMigrations\\Version20250427212653', '2025-04-27 23:27:05', 46);
+('DoctrineMigrations\\Version20250427212653', '2025-04-27 23:27:05', 46),
+('DoctrineMigrations\\Version20250428133320', '2025-04-28 16:53:37', 39),
+('DoctrineMigrations\\Version20250428145334', '2025-04-28 16:53:37', 53),
+('DoctrineMigrations\\Version20250428162612', '2025-04-28 18:26:23', 105);
 
 -- --------------------------------------------------------
 
@@ -53,6 +56,19 @@ CREATE TABLE `groupe` (
   `estPublic` tinyint(1) DEFAULT NULL,
   `dateCreation` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `invitation`
+--
+
+CREATE TABLE `invitation` (
+  `id` int(11) NOT NULL,
+  `utilisateur_id` int(11) NOT NULL,
+  `projet_id` int(11) NOT NULL,
+  `date_invitation` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -93,7 +109,38 @@ INSERT INTO `projet` (`id`, `utilisateur_id`, `description`, `nom`, `statut`, `d
 (7, 11, 'ami', 'Carot', 'en cours', '2025-04-23 00:00:00'),
 (8, 11, 'a', 'pou', 'e', '2025-04-02 00:00:00'),
 (10, 23, 'd', 'd', 'd', '2025-04-02 00:00:00'),
-(11, 12, 'on va le mettre au garage', 'rajit on va le bz', 'en réalisation', '2025-04-30 00:00:00');
+(11, 12, 'on va le mettre au garage', 'jjb', 'en réalisation', '2025-04-30 00:00:00'),
+(12, 12, 'en bien', 'Carotte', 'en cours', '2025-04-01 00:00:00'),
+(13, 12, 'gyuv', 'Carotte', 'en cours', '2025-04-02 00:00:00'),
+(14, 11, 'bb', 'la fouine', 'en cours', '2025-04-22 00:00:00'),
+(15, 12, 'bb', 'chat', 'terminé', '2025-04-02 00:00:00'),
+(16, 23, 'il a bien travaillé donc il mérite', 'rajit on le pépon', 'en réalisation', '2025-05-01 00:00:00'),
+(17, 12, 'test 11', 'test 11', 'test 11', '2025-05-03 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `projet_utilisateur`
+--
+
+CREATE TABLE `projet_utilisateur` (
+  `projet_id` int(11) NOT NULL,
+  `utilisateur_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `projet_utilisateur`
+--
+
+INSERT INTO `projet_utilisateur` (`projet_id`, `utilisateur_id`) VALUES
+(13, 11),
+(14, 12),
+(15, 23),
+(16, 12),
+(17, 12),
+(17, 23),
+(17, 24),
+(17, 25);
 
 -- --------------------------------------------------------
 
@@ -107,8 +154,16 @@ CREATE TABLE `tache` (
   `titre` varchar(255) NOT NULL,
   `description` longtext DEFAULT NULL,
   `statut` varchar(50) NOT NULL,
-  `deadline` datetime DEFAULT NULL
+  `deadline` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `tache`
+--
+
+INSERT INTO `tache` (`id`, `projet_id`, `titre`, `description`, `statut`, `deadline`) VALUES
+(1, 11, 'Kimura', 'techinique de bras', 'urgent', '2025-05-11'),
+(2, 11, 'leg loc', 'techinique de jambe', 'semaine pro', '2025-05-11');
 
 -- --------------------------------------------------------
 
@@ -122,7 +177,7 @@ CREATE TABLE `utilisateur` (
   `prenom` varchar(50) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `mot_de_passe` varchar(255) DEFAULT NULL,
-  `roles` varchar(255) DEFAULT NULL,
+  `roles` varchar(20) DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
   `service` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -183,6 +238,14 @@ ALTER TABLE `groupe`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `invitation`
+--
+ALTER TABLE `invitation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `IDX_F11D61A2FB88E14F` (`utilisateur_id`),
+  ADD KEY `IDX_F11D61A2C18272` (`projet_id`);
+
+--
 -- Index pour la table `messenger_messages`
 --
 ALTER TABLE `messenger_messages`
@@ -197,6 +260,14 @@ ALTER TABLE `messenger_messages`
 ALTER TABLE `projet`
   ADD PRIMARY KEY (`id`),
   ADD KEY `IDX_50159CA9FB88E14F` (`utilisateur_id`);
+
+--
+-- Index pour la table `projet_utilisateur`
+--
+ALTER TABLE `projet_utilisateur`
+  ADD PRIMARY KEY (`projet_id`,`utilisateur_id`),
+  ADD KEY `IDX_C626378DC18272` (`projet_id`),
+  ADD KEY `IDX_C626378DFB88E14F` (`utilisateur_id`);
 
 --
 -- Index pour la table `tache`
@@ -230,6 +301,12 @@ ALTER TABLE `groupe`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pour la table `invitation`
+--
+ALTER TABLE `invitation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `messenger_messages`
 --
 ALTER TABLE `messenger_messages`
@@ -239,13 +316,13 @@ ALTER TABLE `messenger_messages`
 -- AUTO_INCREMENT pour la table `projet`
 --
 ALTER TABLE `projet`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pour la table `tache`
 --
 ALTER TABLE `tache`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `utilisateur`
@@ -258,10 +335,24 @@ ALTER TABLE `utilisateur`
 --
 
 --
+-- Contraintes pour la table `invitation`
+--
+ALTER TABLE `invitation`
+  ADD CONSTRAINT `FK_F11D61A2C18272` FOREIGN KEY (`projet_id`) REFERENCES `projet` (`id`),
+  ADD CONSTRAINT `FK_F11D61A2FB88E14F` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`);
+
+--
 -- Contraintes pour la table `projet`
 --
 ALTER TABLE `projet`
   ADD CONSTRAINT `FK_50159CA9FB88E14F` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`);
+
+--
+-- Contraintes pour la table `projet_utilisateur`
+--
+ALTER TABLE `projet_utilisateur`
+  ADD CONSTRAINT `FK_C626378DFB88E14F` FOREIGN KEY (`utilisateur_id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_projet_id` FOREIGN KEY (`projet_id`) REFERENCES `projet` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `tache`
