@@ -2,53 +2,201 @@
 
 {% block title %}Mes Projets{% endblock %}
 
-{% block monTitre %}
-    🎯 Bienvenue {{ app.user.nom }} !
+{% block body %}
+<div class="container-fluid mt-5">
+    <!-- Barre de navigation en haut -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">Mon Tableau de Bord</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <span class="navbar-text text-light">
+                        Vous êtes connecté en tant qu'admin
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="row">
+        <!-- Menu de navigation à gauche -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky">
+                <h4 class="text-center my-4">Mes Projets</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#projets-crees">
+                            Projets créés
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projets-invites">
+                            Projets où je suis invité
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-success text-white mt-3" href="{{ path('projet_new') }}">
+                            ➕ Créer un nouveau projet
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            <div id="projets-crees" class="mt-4">
+                <h2 class="text-primary">Projets créés</h2>
+                {% if projetsCrees is not empty %}
+                    <div class="row">
+                        {% for projet in projetsCrees %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow-lg h-100 rounded-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ projet.nom }}</h5>
+                                        <p class="card-text">{{ projet.description|default('Pas de description disponible') }}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted">Deadline : 
+                                                {% if projet.deadline %}
+                                                    {{ projet.deadline|date('d/m/Y') }}
+                                                {% else %}
+                                                    Aucune
+                                                {% endif %}
+                                            </small>
+                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{{ path('projet_edit', {'id': projet.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                                            <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Tu n'as pas encore créé de projet.</p>
+                {% endif %}
+            </div>
+
+            <div id="projets-invites" class="mt-5">
+                <h2 class="text-info">Projets où je suis invité</h2>
+                {% if projetsInvites is not empty %}
+                    <div class="row">
+                        {% for projet in projetsInvites %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow-lg h-100 rounded-3 border-info">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ projet.nom }}</h5>
+                                        <p class="card-text">{{ projet.description|default('Pas de description disponible') }}</p>
+                                        <p class="card-text">
+                                            <small class="text-muted">Chef de projet : {{ projet.utilisateur.email }}</small>
+                                        </p>
+                                        <div class="d-flex justify-content-center">
+                                            <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Tu n'es membre d'aucun projet pour le moment.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</div>
+
 {% endblock %}
 
-{% block body %}
-    <div class="container mt-4">
+{% block stylesheets %}
+    <style>
+        /* Barre de navigation en haut */
+        .navbar {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success text-center">
-                {{ message }}
-            </div>
-        {% endfor %}
+        .navbar-dark .navbar-nav .nav-link {
+            color: #ffffff;
+        }
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>📚 Liste de vos projets</h2>
-            <a href="{{ path('projet_new') }}" class="btn btn-success">➕ Ajouter un projet</a>
-        </div>
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: #d1d1d1;
+        }
 
-        {% if projets is not empty %}
-            <table class="table table-hover table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Nom</th>
-                        <th>Actions</th> {# ✅ Plus de dates inutiles #}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for projet in projets %}
-                        <tr>
-                            <td>{{ projet.nom }}</td>
-                            <td>
-                                <a href="{{ path('projet_edit', { id: projet.id }) }}" class="btn btn-warning btn-sm">✏️ Modifier</a>
+        .navbar-dark .navbar-text {
+            color: #ffffff;
+            font-size: 1rem;
+        }
 
-                                <form method="post" action="{{ path('projet_delete', { id: projet.id }) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
-                                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Supprimer</button> {# ✅ LE BOUTON EST MAINTENANT FERMÉ #}
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="alert alert-info text-center">
-                Vous n'avez encore aucun projet. <br> 🚀 Lancez-vous en créant votre premier projet !
-            </div>
-        {% endif %}
-        
-    </div>
+        /* Styles du menu latéral */
+        #sidebar {
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            padding-top: 50px;
+        }
+
+        #sidebar .nav-link {
+            color: #333;
+            font-weight: 500;
+        }
+
+        #sidebar .nav-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Contenu principal */
+        main {
+            margin-left: 250px; /* Assurer l'espace pour le menu latéral */
+            padding: 30px;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+        }
+
+        .btn-success {
+            width: 100%;
+        }
+
+        .text-muted {
+            font-size: 0.9rem;
+        }
+
+        /* Style général du titre */
+        .text-primary, .text-info {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Espacement entre les sections */
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .mt-5 {
+            margin-top: 3rem;
+        }
+    </style>
 {% endblock %}

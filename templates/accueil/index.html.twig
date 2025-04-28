@@ -3,12 +3,58 @@
 {% block title %}Accueil{% endblock %}
 
 {% block monTitre %}
-Bienvenue sur iKanban 🚀
+    <h1 class="text-center mb-4">Bienvenue sur iKanban 🚀</h1>
 {% endblock %}
 
 {% block body %}
-    <p class="text-center mt-4">Connecté en tant que {{ app.user.nom }}</p>
-    <p class="text-center">
-        <a href="{{ path('projet_index') }}" class="btn btn-primary">Voir mes Projets</a>
-    </p>
+    <div class="container mt-5">
+        <p class="text-center mb-4">Connecté en tant que <strong>{{ app.user.nom }}</strong></p>
+        <div class="text-center">
+            <a href="{{ path('projet_index') }}" class="btn btn-primary btn-lg px-5 py-3">Voir mes Projets</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        /* Container pour centrer le contenu */
+        .container {
+            max-width: 600px; /* Limite la largeur pour un meilleur look sur les écrans larges */
+        }
+
+        /* Titre principal */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Style pour le texte */
+        p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        /* Bouton amélioré */
+        .btn-primary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 25px;
+            padding: 10px 30px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Espacement entre les éléments */
+        .mt-5 {
+            margin-top: 3rem;
+        }
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+    </style>
 {% endblock %}

@@ -1,7 +1,42 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PersonnageController!{% endblock %}
+{% block title %}Bienvenue sur le Tableau de Bord{% endblock %}
 
 {% block body %}
-<h1>alexis la pute</h1>
+    <div class="welcome-container">
+        <h1>Bienvenue, {{ app.user.nom|capitalize }} !</h1>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        /* Container pour centrer le contenu */
+        .welcome-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Remplir toute la hauteur de la fenêtre */
+            background-color: #f7f7f7;
+        }
+
+        /* Style du titre */
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        /* Effet de survol du titre */
+        h1:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 {% endblock %}

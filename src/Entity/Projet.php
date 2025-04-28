@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
-use App\Entity\Utilisateur; // ✅ Ajout du bon import ici
+use App\Entity\Utilisateur;
+use App\Entity\Tache;
+use App\Entity\Invitation; // Assurez-vous d'importer l'entité Invitation
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,10 +29,25 @@ class Projet
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $deadline = null;
 
-    #[ORM\ManyToOne(targetEntity: Utilisateur::class)] // ✅ Utilisateur ici, pas User
-    private ?Utilisateur $utilisateur = null; // ✅ Typage ajouté pour être propre
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'projets')]
+    private ?Utilisateur $utilisateur = null;
 
-    // Getters & Setters
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
+    private Collection $membres;
+
+    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Tache::class, orphanRemoval: true)]
+    private Collection $taches;
+
+    // Relation OneToMany avec l'entité 'Invitation'
+    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Invitation::class, orphanRemoval: true)]
+    private Collection $invitations;
+
+    public function __construct()
+    {
+        $this->membres = new ArrayCollection();
+        $this->taches = new ArrayCollection();
+        $this->invitations = new ArrayCollection();  // Initialisation de la collection d'invitations
+    }
 
     public function getId(): ?int
     {
@@ -87,6 +106,78 @@ class Projet
     public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+        return $this;
+    }
+
+    public function getMembres(): Collection
+    {
+        return $this->membres;
+    }
+
+    public function addMembre(Utilisateur $membre): self
+    {
+        if (!$this->membres->contains($membre)) {
+            $this->membres[] = $membre;
+        }
+        return $this;
+    }
+
+    public function removeMembre(Utilisateur $membre): self
+    {
+        $this->membres->removeElement($membre);
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tache[]
+     */
+    public function getTaches(): Collection
+    {
+        return $this->taches;
+    }
+
+    public function addTache(Tache $tache): self
+    {
+        if (!$this->taches->contains($tache)) {
+            $this->taches[] = $tache;
+            $tache->setProjet($this);
+        }
+        return $this;
+    }
+
+    public function removeTache(Tache $tache): self
+    {
+        if ($this->taches->removeElement($tache)) {
+            if ($tache->getProjet() === $this) {
+                $tache->setProjet(null);
+            }
+        }
+        return $this;
+    }
+
+    // Méthodes pour gérer les invitations
+
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+
+    public function addInvitation(Invitation $invitation): self
+    {
+        if (!$this->invitations->contains($invitation)) {
+            $this->invitations[] = $invitation;
+            $invitation->setProjet($this);
+        }
+        return $this;
+    }
+
+    public function removeInvitation(Invitation $invitation): self
+    {
+        if ($this->invitations->removeElement($invitation)) {
+            if ($invitation->getProjet() === $this) {
+                $invitation->setProjet(null);
+            }
+        }
         return $this;
     }
 }

@@ -1,13 +1,20 @@
-# config/services.yaml
-
 services:
+    # Les services par défaut sont configurés pour l'autowiring et l'autoconfiguration
     _defaults:
         autowire: true
         autoconfigure: true
+        public: false  # C'est une bonne pratique de rendre les services privés par défaut
 
+    # Importer tous les services dans le dossier 'src/'
     App\:
-        resource: '../src/'
+        resource: '../src/*'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+            - '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'  # Exclure les dossiers et fichiers non nécessaires
+
+    # Si vous utilisez un service spécifique, vous pouvez l'ajouter ici
+    # Exemple :
+    # App\Service\SomeService: ~
+
+    # Si vous avez un service lié à la gestion de la session, vous pouvez l'ajouter ici
+    # Exemple :
+    # App\Service\SessionService: ~

@@ -16,33 +16,29 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ProjetRepository extends ServiceEntityRepository
 {
+    /**
+     * Constructeur pour injecter le gestionnaire de registre Doctrine.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Projet::class);
     }
 
-//    /**
-//     * @return Projet[] Returns an array of Projet objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Projet
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Récupérer les projets où l'utilisateur est invité.
+     * Cette méthode suppose que vous avez une relation 'invitations' sur l'entité Projet.
+     *
+     * @param User $user L'utilisateur pour lequel on veut récupérer les projets invités
+     * 
+     * @return Projet[] Liste des projets où l'utilisateur est invité.
+     */
+    public function findProjetsOuUtilisateurEstInvite($user)
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.invitations', 'i') // Jointure avec l'entité 'Invitation' (ou similaire)
+            ->where('i.utilisateur = :user') // L'utilisateur est invité dans ce projet
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }

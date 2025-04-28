@@ -1,7 +1,42 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PersonnageController!{% endblock %}
+{% block title %}Bienvenue sur la page des Personnages{% endblock %}
 
 {% block body %}
-<h1>rajit la folle</h1>
+    <div class="container mt-5">
+        <h1 class="text-center">Bienvenue dans le Tableau des Personnages</h1>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        /* Centrer le contenu de la page */
+        .container {
+            max-width: 600px; /* Limite la largeur du contenu pour un meilleur look */
+        }
+
+        /* Titre principal */
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #34495e;
+            text-align: center;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Effet de survol du titre */
+        h1:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Espacement vertical */
+        .mt-5 {
+            margin-top: 5rem;
+        }
+    </style>
 {% endblock %}

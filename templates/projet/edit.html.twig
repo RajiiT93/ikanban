@@ -7,13 +7,127 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Modifier le projet</h1>
+
         {{ form_start(form) }}
-            {{ form_row(form.nom) }}
-            {{ form_row(form.description) }}
-            {{ form_row(form.statut) }}
-            {{ form_row(form.deadline) }}
-            <button type="submit" class="btn btn-warning mt-3">Modifier</button>
+            <div class="form-group mb-4">
+                {{ form_row(form.nom) }}
+            </div>
+            <div class="form-group mb-4">
+                {{ form_row(form.description) }}
+            </div>
+            <div class="form-group mb-4">
+                {{ form_row(form.statut) }}
+            </div>
+            <div class="form-group mb-4">
+                {{ form_row(form.deadline) }}
+            </div>
+
+            <!-- Affichage des membres invités sous forme de liste -->
+            <div class="form-group mb-4">
+                <h5>Membres invités au projet</h5>
+                <ul class="list-group">
+                    {% for membre in projet.membres %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ membre.email }}
+                            <span class="badge bg-info">{{ membre.role }}</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item text-muted">Aucun membre invité pour le moment.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Modifier
+                </button>
+            </div>
         {{ form_end(form) }}
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        /* Conteneur du formulaire */
+        .container {
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        /* Titre de la page */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Style des champs de formulaire */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+
+        /* Bouton Modifier stylisé */
+        .btn-warning {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e00;
+            transform: translateY(-2px);
+        }
+
+        /* Espacement vertical entre les sections */
+        .mt-5 {
+            margin-top: 5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Style de la liste des membres invités */
+        .list-group-item {
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .badge {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+        }
+
+        .badge.bg-info {
+            background-color: #17a2b8;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
 {% endblock %}

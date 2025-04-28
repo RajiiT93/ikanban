@@ -1,4 +1,15 @@
-<form method="post" action="{{ path('app_projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+<form method="post" action="{{ path('app_projet_delete', {'id': projet.id}) }}" onsubmit="return confirmDeletion();">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
-    <button class="btn">Delete</button>
+    <button type="submit" class="btn btn-danger btn-sm">
+        Supprimer
+    </button>
 </form>
+
+{% block javascripts %}
+    <script>
+        // Fonction de confirmation avec un message personnalisé
+        function confirmDeletion() {
+            return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');
+        }
+    </script>
+{% endblock %}

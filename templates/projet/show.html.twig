@@ -1,15 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Projet - {{ projet.titre }}{% endblock %}
+{% block title %}Projet - {{ projet.nom }}{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1 class="mt-4">{{ projet.titre }}</h1>
+<div class="container mt-5">
 
-    <p><strong>Créé le :</strong> {{ projet.dateCreation|date('d/m/Y') }}</p>
+    <h1 class="mb-4">{{ projet.nom }}</h1>
 
-    <p><strong>Description :</strong> {{ projet.description }}</p>
+    <div class="mb-4">
+        <p><strong>👑 Chef de projet :</strong> {{ projet.utilisateur.email }}</p>
 
-    <a href="{{ path('app_welcome') }}" class="btn btn-primary mt-3">Retour à mes projets</a>
+        {% if projet.deadline %}
+            <p><strong>📅 Date limite :</strong> {{ projet.deadline|date('d/m/Y') }}</p>
+        {% else %}
+            <p><strong>📅 Date limite :</strong> Non définie</p>
+        {% endif %}
+
+        <p><strong>📝 Description :</strong> {{ projet.description|default('Aucune description') }}</p>
+    </div>
+
+    <div class="mb-5">
+        <h3 class="mb-3">🤝 Membres invités :</h3>
+        {% if projet.membres|length > 0 %}
+            <ul class="list-group">
+                {% for membre in projet.membres %}
+                    <li class="list-group-item">{{ membre.email }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun membre invité pour ce projet.</p>
+        {% endif %}
+    </div>
+
+    <div class="mb-5">
+        <h3 class="mb-3">🗂️ Tâches du projet :</h3>
+        {% if projet.taches is defined and projet.taches|length > 0 %}
+            <ul class="list-group">
+                {% for tache in projet.taches %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ tache.titre }}</strong><br>
+                            <small>{{ tache.statut }}</small>
+                        </div>
+                        {% if tache.deadline %}
+                            <span class="badge bg-primary">{{ tache.deadline|date('d/m/Y') }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune tâche encore créée pour ce projet.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-5">
+        <a href="{{ path('projet_index') }}" class="btn btn-secondary">⬅️ Retour à mes projets</a>
+    </div>
+
 </div>
 {% endblock %}

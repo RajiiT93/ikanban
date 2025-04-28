@@ -3,9 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Projet;
+use App\Entity\Utilisateur; // 👈 Ajout de l'import
+use Symfony\Bridge\Doctrine\Form\Type\EntityType; // 👈 Import pour EntityType
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\DateType; // ✅ On ajoute l'import DateType
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,17 +19,30 @@ class ProjetType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom du projet',
+                'attr' => ['placeholder' => 'Entrez le nom du projet'],
             ])
-            ->add('description', TextType::class, [
-                'label' => 'Description',
+            ->add('description', TextareaType::class, [
+                'label' => 'Description du projet',
+                'required' => false,
+                'attr' => ['placeholder' => 'Décrivez le projet...'],
             ])
             ->add('statut', TextType::class, [
                 'label' => 'Statut',
-            ])
-            ->add('deadline', DateType::class, [ // ✅ Utiliser DateType
-                'widget' => 'single_text',      // ✅ Pour avoir un champ <input type="date">
-                'label' => 'Date limite',
+                'attr' => ['placeholder' => 'Par ex: En cours, Terminé, À faire'],
                 'required' => false,
+            ])
+            ->add('deadline', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date limite (Deadline)',
+                'required' => false,
+            ])
+            ->add('membres', EntityType::class, [ // 🔥 Champ pour inviter des membres
+                'class' => Utilisateur::class,
+                'choice_label' => 'email', // ou 'nom' si tu préfères
+                'multiple' => true,
+                'expanded' => true, // checkbox si true, sinon select multiple
+                'required' => false,
+                'label' => 'Inviter des membres au projet',
             ]);
     }
 
