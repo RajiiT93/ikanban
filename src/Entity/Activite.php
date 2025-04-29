@@ -19,13 +19,22 @@ class Activite
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateAction = null;
 
+    // Utilisateur qui a effectué l'action
     #[ORM\ManyToOne(inversedBy: 'activites')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Utilisateur $utilisateur = null;
 
+    // Projet lié à l'activité (ex: création projet, suppression, ajout de tache dans un projet)
     #[ORM\ManyToOne(inversedBy: 'activites')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Projet $projet = null;
+
+    // Tâche liée à l'activité (ex: création tâche, modification, suppression)
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    private ?Tache $tache = null;
+
+    // -------------------- Getters & Setters -------------------- //
 
     public function getId(): ?int
     {
@@ -73,6 +82,17 @@ class Activite
     public function setProjet(?Projet $projet): static
     {
         $this->projet = $projet;
+        return $this;
+    }
+
+    public function getTache(): ?Tache
+    {
+        return $this->tache;
+    }
+
+    public function setTache(?Tache $tache): static
+    {
+        $this->tache = $tache;
         return $this;
     }
 }

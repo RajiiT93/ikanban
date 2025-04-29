@@ -19,14 +19,31 @@
     {% endfor %}
 
     <div class="card shadow-sm p-4">
-        {{ form_start(form) }}
-            {{ form_row(form.nom) }}
-            {{ form_row(form.description) }}
-            {{ form_row(form.statut) }}
-            {{ form_row(form.deadline) }}
+        <h2 class="text-center text-primary mb-4">📝 Informations du projet</h2>
 
-            <div class="form-group mb-4">
-                <h5>Inviter des membres au projet</h5>
+        {{ form_start(form) }}
+            <div class="mb-3">
+                {{ form_label(form.nom) }}
+                {{ form_widget(form.nom, { 'attr': {'class': 'form-control'} }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description, { 'attr': {'class': 'form-control', 'rows': 3} }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.statut) }}
+                {{ form_widget(form.statut, { 'attr': {'class': 'form-select'} }) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.deadline) }}
+                {{ form_widget(form.deadline, { 'attr': {'class': 'form-control datepicker'} }) }}
+            </div>
+
+            <div class="mb-4">
+                <h5 class="mb-2">👥 Membres invités</h5>
                 <div class="checkbox-group">
                     {{ form_row(form.membres) }}
                 </div>
@@ -62,6 +79,19 @@
 
         .checkbox-group input[type="checkbox"] {
             margin-right: 10px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
         }
     </style>
 {% endblock %}

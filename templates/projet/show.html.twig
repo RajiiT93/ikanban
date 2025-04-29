@@ -3,85 +3,119 @@
 {% block title %}Projet - {{ projet.nom }}{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<div class="container-fluid mt-5">
 
-    <h1 class="mb-4">{{ projet.nom }}</h1>
+    <h1 class="text-center text-primary mb-5">{{ projet.nom }}</h1>
 
-    <div class="mb-4">
-        <p><strong>👑 Chef de projet :</strong> {{ projet.utilisateur.email }}</p>
+    <!-- Infos projet + Membres -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p><strong>👑 Chef de projet :</strong> {{ projet.utilisateur.email }}</p>
+                    <p><strong>📅 Deadline :</strong> {{ projet.deadline ? projet.deadline|date('d/m/Y') : 'Non définie' }}</p>
+                    <p><strong>📝 Description :</strong> {{ projet.description|default('Aucune description') }}</p>
+                </div>
+            </div>
+        </div>
 
-        {% if projet.deadline %}
-            <p><strong>📅 Date limite :</strong> {{ projet.deadline|date('d/m/Y') }}</p>
-        {% else %}
-            <p><strong>📅 Date limite :</strong> Non définie</p>
-        {% endif %}
-
-        <p><strong>📝 Description :</strong> {{ projet.description|default('Aucune description') }}</p>
-    </div>
-
-    <div class="mb-5">
-        <h3 class="mb-3">🤝 Membres invités :</h3>
-        {% if projet.membres|length > 0 %}
-            <ul class="list-group">
-                {% for membre in projet.membres %}
-                    <li class="list-group-item">{{ membre.email }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Aucun membre invité pour ce projet.</p>
-        {% endif %}
-    </div>
-
-    <div class="mb-5">
-        <h3 class="mb-3">🗂️ Tâches du projet :</h3>
-        {% if projet.taches is defined and projet.taches|length > 0 %}
-            <ul class="list-group">
-                {% for tache in projet.taches %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ tache.titre }}</strong><br>
-                            <small>{{ tache.statut }}</small>
-                        </div>
-                        {% if tache.deadline %}
-                            <span class="badge bg-primary">{{ tache.deadline|date('d/m/Y') }}</span>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Aucune tâche encore créée pour ce projet.</p>
-        {% endif %}
-
-        <div class="mt-3">
-            <a href="{{ path('tache_new', {'idProjet': projet.id}) }}" class="btn btn-primary">+ Ajouter une tâche</a>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">🤝 Membres invités</div>
+                <ul class="list-group list-group-flush">
+                    {% if projet.membres|length > 0 %}
+                        {% for membre in projet.membres %}
+                            <li class="list-group-item">{{ membre.email }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-muted">Aucun membre invité.</li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 
+    <!-- Tâches en Kanban -->
     <div class="mb-5">
-        <h3 class="mb-3 text-secondary">📜 Historique du projet</h3>
-        {% if projet.activites is defined and projet.activites|length > 0 %}
-            <ul class="list-group">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-warning">🗂️ Tâches (Vue Kanban)</h3>
+            <a href="{{ path('tache_new', {'idProjet': projet.id}) }}" class="btn btn-outline-primary">
+                ➕ Ajouter une tâche
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% set colonnes = ['À faire', 'En cours', 'Terminé'] %}
+            {% for statut in colonnes %}
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-dark text-white text-center fw-bold">
+                            {{ statut }}
+                        </div>
+                        <div class="card-body" style="min-height: 200px;">
+                            {% set taches = projet.taches|filter(t => t.statut == statut) %}
+                            {% if taches|length > 0 %}
+                                {% for tache in taches %}
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-body p-2">
+                                            <h6 class="fw-bold">{{ tache.titre }}</h6>
+                                            <p class="small mb-1">{{ tache.description|default('') }}</p>
+                                            {% if tache.deadline %}
+                                                <span class="badge bg-secondary small">
+                                                    📅 {{ tache.deadline|date('d/m/Y') }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted small text-center mt-3">Aucune tâche</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Historique Tâches/Projets -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-secondary text-white">
+            📜 Historique des activités
+        </div>
+
+        {% if projet.activites|length > 0 %}
+            <ul class="list-group list-group-flush">
                 {% for activite in projet.activites %}
                     <li class="list-group-item">
-                        <strong>{{ activite.typeAction }}</strong><br>
-                        <small class="text-muted">
-                            par {{ activite.utilisateur.email }} — {{ activite.dateAction|date('d/m/Y H:i') }}
-                        </small>
+                        <strong>{{ activite.typeAction }}</strong>
+                        {% if activite.tache %}
+                            sur la tâche "<span class="text-primary">{{ activite.tache.titre }}</span>"
+                        {% elseif activite.projet %}
+                            du projet "<span class="text-success">{{ activite.projet.nom }}</span>"
+                        {% endif %}
+                        <br>
+                        <small class="text-muted">Par {{ activite.utilisateur.email }} — {{ activite.dateAction|date('d/m/Y H:i') }}</small>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="text-muted">Aucune activité enregistrée pour ce projet.</p>
+            <div class="card-body text-muted">
+                Aucune activité enregistrée.
+            </div>
         {% endif %}
     </div>
 
-    <div class="mt-5 d-flex gap-3">
-        <a href="{{ path('projet_index') }}" class="btn btn-secondary">⬅️ Retour à mes projets</a>
+    <!-- Boutons -->
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="{{ path('projet_index') }}" class="btn btn-secondary">
+            ⬅️ Retour aux projets
+        </a>
 
         {% if app.user and app.user == projet.utilisateur %}
             <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('Es-tu sûr de vouloir supprimer ce projet ?');">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
-                <button class="btn btn-danger">🗑️ Supprimer ce projet</button>
+                <button class="btn btn-danger">🗑️ Supprimer</button>
             </form>
         {% endif %}
     </div>

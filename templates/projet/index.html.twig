@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="d-flex">
-    <!-- SIDEBAR STYLE TRELLO -->
+    <!-- SIDEBAR -->
     <nav id="sidebar" class="bg-light border-end p-4 vh-100">
         <h4 class="text-center mb-4">📋 Tableau</h4>
         <ul class="nav flex-column">
@@ -19,15 +19,10 @@
                     ➕ Nouveau projet
                 </a>
             </li>
-            <li class="nav-item mt-5">
-                <a class="nav-link text-danger fw-semibold" href="{{ path('logout') }}">
-                    🚪 Déconnexion
-                </a>
-            </li>
         </ul>
     </nav>
 
-    <!-- CONTENU PRINCIPAL -->
+    <!-- CONTENU -->
     <main class="flex-grow-1 p-5 bg-light">
         {% for label, messages in app.flashes %}
             {% for message in messages %}
@@ -50,10 +45,7 @@
                                     <h5 class="card-title">{{ projet.nom }}</h5>
                                     <p class="card-text">{{ projet.description|default('Pas de description') }}</p>
                                     <p class="card-text">
-                                        <small class="text-muted">
-                                            📅 Deadline :
-                                            {{ projet.deadline ? projet.deadline|date('d/m/Y') : 'Aucune' }}
-                                        </small>
+                                        <small class="text-muted">📅 {{ projet.deadline ? projet.deadline|date('d/m/Y') : 'Aucune deadline' }}</small>
                                     </p>
                                     <div class="d-flex justify-content-between mt-3">
                                         <a href="{{ path('projet_edit', {'id': projet.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
@@ -103,28 +95,44 @@
         <!-- ACTIVITÉ RÉCENTE -->
         <section class="mt-5">
             <hr>
-            <h2 class="text-secondary">🕓 Activité récente</h2>
+            <h2 class="text-secondary mb-4">🕓 Activité récente</h2>
+
             {% if activites is defined and activites is not empty %}
-                <ul class="list-group mt-3">
+                <div class="timeline">
                     {% for activite in activites %}
                         {% set icone = '📌' %}
+                        {% set color = 'bg-secondary' %}
                         {% if 'Création' in activite.typeAction %}
                             {% set icone = '🟢' %}
+                            {% set color = 'bg-success' %}
                         {% elseif 'Modification' in activite.typeAction %}
                             {% set icone = '✏️' %}
+                            {% set color = 'bg-warning' %}
                         {% elseif 'Suppression' in activite.typeAction %}
                             {% set icone = '🗑️' %}
+                            {% set color = 'bg-danger' %}
                         {% elseif 'Ajout' in activite.typeAction %}
                             {% set icone = '➕' %}
+                            {% set color = 'bg-primary' %}
                         {% endif %}
-                        <li class="list-group-item">
-                            <strong>{{ icone }} {{ activite.typeAction }}</strong><br>
-                            <small class="text-muted">
-                                Par {{ activite.utilisateur.email }} le {{ activite.dateAction|date('d/m/Y H:i') }}
-                            </small>
-                        </li>
+
+                        <div class="timeline-item d-flex position-relative mb-5">
+                            <div class="timeline-icon {{ color }}">
+                                <span class="text-white">{{ icone }}</span>
+                            </div>
+                            <div class="timeline-content ms-4">
+                                <h6 class="fw-bold mb-1">{{ activite.typeAction }}</h6>
+                                {% if activite.tache %}
+                                    <small class="text-muted">Sur la tâche : <strong>{{ activite.tache.titre }}</strong></small><br>
+                                {% endif %}
+                                {% if activite.projet %}
+                                    <small class="text-muted">Dans le projet : <strong>{{ activite.projet.nom }}</strong></small><br>
+                                {% endif %}
+                                <small class="text-muted">Par {{ activite.utilisateur.email }} — {{ activite.dateAction|date('d/m/Y H:i') }}</small>
+                            </div>
+                        </div>
                     {% endfor %}
-                </ul>
+                </div>
             {% else %}
                 <p class="text-muted">Aucune activité enregistrée.</p>
             {% endif %}
@@ -171,6 +179,39 @@
 
     .card:hover {
         transform: translateY(-3px);
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+        margin-left: 30px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: 2px;
+        height: 100%;
+        background: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+    }
+    .timeline-icon {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    .timeline-content {
+        padding-left: 20px;
     }
 </style>
 {% endblock %}

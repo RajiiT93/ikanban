@@ -63,13 +63,7 @@ class ProjetController extends AbstractController
             $em->persist($projet);
             $em->flush();
 
-            $activite = new Activite();
-            $activite->setTypeAction('Création du projet');
-            $activite->setDateAction(new \DateTimeImmutable());
-            $activite->setUtilisateur($this->getUser());
-            $activite->setProjet($projet);
-            $em->persist($activite);
-            $em->flush();
+            $this->addActivite($em, 'Création du projet', $projet);
 
             $this->addFlash('success', 'Projet créé avec succès ✅');
             return $this->redirectToRoute('projet_index');
@@ -96,13 +90,7 @@ class ProjetController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $activite = new Activite();
-            $activite->setTypeAction('Modification du projet');
-            $activite->setDateAction(new \DateTimeImmutable());
-            $activite->setUtilisateur($this->getUser());
-            $activite->setProjet($projet);
-            $em->persist($activite);
-            $em->flush();
+            $this->addActivite($em, 'Modification du projet', $projet);
 
             $this->addFlash('success', 'Projet modifié avec succès ✏️');
             return $this->redirectToRoute('projet_index');
@@ -115,7 +103,7 @@ class ProjetController extends AbstractController
     }
 
     #[Route('/{id}', name: 'projet_show', methods: ['GET'])]
-    public function show(Projet $projet): Response
+    public function show(Projet $projet, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -125,8 +113,19 @@ class ProjetController extends AbstractController
             return $this->redirectToRoute('projet_index');
         }
 
+        $activitesTaches = $em->getRepository(Activite::class)
+            ->createQueryBuilder('a')
+            ->where('a.projet = :projet')
+            ->andWhere('a.typeAction LIKE :type')
+            ->setParameter('projet', $projet)
+            ->setParameter('type', '%tâche%')
+            ->orderBy('a.dateAction', 'DESC')
+            ->getQuery()
+            ->getResult();
+
         return $this->render('projet/show.html.twig', [
             'projet' => $projet,
+            'activitesTaches' => $activitesTaches,
         ]);
     }
 
@@ -141,12 +140,7 @@ class ProjetController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete' . $projet->getId(), $request->request->get('_token'))) {
-            $activite = new Activite();
-            $activite->setTypeAction('Suppression du projet');
-            $activite->setDateAction(new \DateTimeImmutable());
-            $activite->setUtilisateur($this->getUser());
-            $activite->setProjet($projet);
-            $em->persist($activite);
+            $this->addActivite($em, 'Suppression du projet', $projet);
 
             $em->remove($projet);
             $em->flush();
@@ -155,5 +149,18 @@ class ProjetController extends AbstractController
         }
 
         return $this->redirectToRoute('projet_index');
+    }
+
+    // ✅ Fonction privée pour factoriser les créations d'activités
+    private function addActivite(EntityManagerInterface $em, string $type, Projet $projet): void
+    {
+        $activite = new Activite();
+        $activite->setTypeAction($type);
+        $activite->setDateAction(new \DateTimeImmutable());
+        $activite->setUtilisateur($this->getUser());
+        $activite->setProjet($projet);
+
+        $em->persist($activite);
+        $em->flush();
     }
 }
