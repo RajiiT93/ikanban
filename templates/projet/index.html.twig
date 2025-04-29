@@ -3,207 +3,174 @@
 {% block title %}Mes Projets{% endblock %}
 
 {% block body %}
-<div class="container-fluid mt-5">
-    <!-- Barre de navigation en haut -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Mon Tableau de Bord</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <span class="navbar-text text-light">
-                        Vous êtes connecté en tant qu'admin
-                    </span>
-                </li>
-            </ul>
-        </div>
+<div class="d-flex">
+    <!-- SIDEBAR STYLE TRELLO -->
+    <nav id="sidebar" class="bg-light border-end p-4 vh-100">
+        <h4 class="text-center mb-4">📋 Tableau</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="#projets-crees">📌 Projets créés</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" href="#projets-invites">🤝 Projets invités</a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="btn btn-success w-100 fw-bold" href="{{ path('projet_new') }}">
+                    ➕ Nouveau projet
+                </a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger fw-semibold" href="{{ path('logout') }}">
+                    🚪 Déconnexion
+                </a>
+            </li>
+        </ul>
     </nav>
 
-    <div class="row">
-        <!-- Menu de navigation à gauche -->
-        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-            <div class="position-sticky">
-                <h4 class="text-center my-4">Mes Projets</h4>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#projets-crees">
-                            Projets créés
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#projets-invites">
-                            Projets où je suis invité
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-success text-white mt-3" href="{{ path('projet_new') }}">
-                            ➕ Créer un nouveau projet
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <!-- Contenu principal -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label }} alert-dismissible fade show mt-3" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
+    <!-- CONTENU PRINCIPAL -->
+    <main class="flex-grow-1 p-5 bg-light">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             {% endfor %}
+        {% endfor %}
 
-            <div id="projets-crees" class="mt-4">
-                <h2 class="text-primary">Projets créés</h2>
-                {% if projetsCrees is not empty %}
-                    <div class="row">
-                        {% for projet in projetsCrees %}
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-lg h-100 rounded-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ projet.nom }}</h5>
-                                        <p class="card-text">{{ projet.description|default('Pas de description disponible') }}</p>
-                                        <p class="card-text">
-                                            <small class="text-muted">Deadline : 
-                                                {% if projet.deadline %}
-                                                    {{ projet.deadline|date('d/m/Y') }}
-                                                {% else %}
-                                                    Aucune
-                                                {% endif %}
-                                            </small>
-                                        </p>
-                                        <div class="d-flex justify-content-between">
-                                            <a href="{{ path('projet_edit', {'id': projet.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
-                                            <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
-                                            <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
-                                                <button class="btn btn-danger btn-sm">Supprimer</button>
-                                            </form>
-                                        </div>
+        <!-- PROJETS CRÉÉS -->
+        <section id="projets-crees">
+            <h2 class="text-primary mb-3">📌 Projets créés</h2>
+            {% if projetsCrees is not empty %}
+                <div class="row">
+                    {% for projet in projetsCrees %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ projet.nom }}</h5>
+                                    <p class="card-text">{{ projet.description|default('Pas de description') }}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            📅 Deadline :
+                                            {{ projet.deadline ? projet.deadline|date('d/m/Y') : 'Aucune' }}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <a href="{{ path('projet_edit', {'id': projet.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                                        <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                                        <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('Supprimer ce projet ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                            <button class="btn btn-danger btn-sm">Supprimer</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>Tu n'as pas encore créé de projet.</p>
-                {% endif %}
-            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Aucun projet créé.</p>
+            {% endif %}
+        </section>
 
-            <div id="projets-invites" class="mt-5">
-                <h2 class="text-info">Projets où je suis invité</h2>
-                {% if projetsInvites is not empty %}
-                    <div class="row">
-                        {% for projet in projetsInvites %}
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-lg h-100 rounded-3 border-info">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ projet.nom }}</h5>
-                                        <p class="card-text">{{ projet.description|default('Pas de description disponible') }}</p>
-                                        <p class="card-text">
-                                            <small class="text-muted">Chef de projet : {{ projet.utilisateur.email }}</small>
-                                        </p>
-                                        <div class="d-flex justify-content-center">
-                                            <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
-                                        </div>
+        <!-- PROJETS INVITÉS -->
+        <section id="projets-invites" class="mt-5">
+            <h2 class="text-info mb-3">🤝 Projets invités</h2>
+            {% if projetsInvites is not empty %}
+                <div class="row">
+                    {% for projet in projetsInvites %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-info shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ projet.nom }}</h5>
+                                    <p class="card-text">{{ projet.description|default('Pas de description') }}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">Chef de projet : {{ projet.utilisateur.email }}</small>
+                                    </p>
+                                    <div class="text-center mt-3">
+                                        <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>Tu n'es membre d'aucun projet pour le moment.</p>
-                {% endif %}
-            </div>
-        </main>
-    </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Aucun projet où tu es invité.</p>
+            {% endif %}
+        </section>
+
+        <!-- ACTIVITÉ RÉCENTE -->
+        <section class="mt-5">
+            <hr>
+            <h2 class="text-secondary">🕓 Activité récente</h2>
+            {% if activites is defined and activites is not empty %}
+                <ul class="list-group mt-3">
+                    {% for activite in activites %}
+                        {% set icone = '📌' %}
+                        {% if 'Création' in activite.typeAction %}
+                            {% set icone = '🟢' %}
+                        {% elseif 'Modification' in activite.typeAction %}
+                            {% set icone = '✏️' %}
+                        {% elseif 'Suppression' in activite.typeAction %}
+                            {% set icone = '🗑️' %}
+                        {% elseif 'Ajout' in activite.typeAction %}
+                            {% set icone = '➕' %}
+                        {% endif %}
+                        <li class="list-group-item">
+                            <strong>{{ icone }} {{ activite.typeAction }}</strong><br>
+                            <small class="text-muted">
+                                Par {{ activite.utilisateur.email }} le {{ activite.dateAction|date('d/m/Y H:i') }}
+                            </small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">Aucune activité enregistrée.</p>
+            {% endif %}
+        </section>
+    </main>
 </div>
 {% endblock %}
 
 {% block stylesheets %}
-    <style>
-        .navbar {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+<style>
+    #sidebar {
+        width: 250px;
+        min-height: 100vh;
+        position: sticky;
+        top: 0;
+    }
 
-        .navbar-dark .navbar-nav .nav-link {
-            color: #ffffff;
-        }
+    #sidebar .nav-link {
+        font-size: 1rem;
+        color: #333;
+    }
 
-        .navbar-dark .navbar-nav .nav-link:hover {
-            color: #d1d1d1;
-        }
+    #sidebar .nav-link:hover,
+    #sidebar .nav-link.active {
+        background-color: #007bff;
+        color: white;
+    }
 
-        .navbar-dark .navbar-text {
-            color: #ffffff;
-            font-size: 1rem;
-        }
+    main {
+        background-color: #f8f9fa;
+    }
 
-        #sidebar {
-            background-color: #f8f9fa;
-            border-right: 1px solid #ddd;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            padding-top: 50px;
-        }
+    .btn-sm {
+        padding: 6px 12px;
+    }
 
-        #sidebar .nav-link {
-            color: #333;
-            font-weight: 500;
-        }
+    .list-group-item {
+        font-size: 0.95rem;
+    }
 
-        #sidebar .nav-link:hover {
-            background-color: #007bff;
-            color: white;
-        }
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
 
-        #sidebar .nav-link.active {
-            background-color: #007bff;
-            color: white;
-        }
-
-        main {
-            margin-left: 250px;
-            padding: 30px;
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-        }
-
-        .btn-success {
-            width: 100%;
-        }
-
-        .text-muted {
-            font-size: 0.9rem;
-        }
-
-        .text-primary, .text-info {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .mt-4 {
-            margin-top: 2rem;
-        }
-
-        .mt-5 {
-            margin-top: 3rem;
-        }
-    </style>
+    .card:hover {
+        transform: translateY(-3px);
+    }
+</style>
 {% endblock %}

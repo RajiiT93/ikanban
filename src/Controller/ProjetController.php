@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Projet;
+use App\Entity\Activite;
 use App\Form\ProjetType;
 use App\Repository\ProjetRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,18 +16,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProjetController extends AbstractController
 {
     #[Route('/', name: 'projet_index', methods: ['GET'])]
-    public function index(ProjetRepository $projetRepository): Response
+    public function index(ProjetRepository $projetRepository, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
-
         if (!$user) {
             return $this->redirectToRoute('connexion');
         }
 
-        // Récupération des projets créés par l'utilisateur
         $projetsCrees = $projetRepository->findBy(['utilisateur' => $user]);
 
-        // Récupération des projets où l'utilisateur est membre invité
         $projetsInvites = $projetRepository->createQueryBuilder('p')
             ->join('p.membres', 'm')
             ->where('m.id = :userId')
@@ -34,10 +32,20 @@ class ProjetController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        // Envoi des variables au template
+        $projets = array_merge($projetsCrees, $projetsInvites);
+
+        $activites = $em->getRepository(Activite::class)
+            ->createQueryBuilder('a')
+            ->where('a.projet IN (:projets)')
+            ->setParameter('projets', $projets)
+            ->orderBy('a.dateAction', 'DESC')
+            ->getQuery()
+            ->getResult();
+
         return $this->render('projet/index.html.twig', [
-            'projetsCrees' => $projetsCrees,    // Projets créés par l'utilisateur
-            'projetsInvites' => $projetsInvites,  // Projets où l'utilisateur est invité
+            'projetsCrees' => $projetsCrees,
+            'projetsInvites' => $projetsInvites,
+            'activites' => $activites,
         ]);
     }
 
@@ -52,8 +60,15 @@ class ProjetController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $projet->setUtilisateur($this->getUser());
-
             $em->persist($projet);
+            $em->flush();
+
+            $activite = new Activite();
+            $activite->setTypeAction('Création du projet');
+            $activite->setDateAction(new \DateTimeImmutable());
+            $activite->setUtilisateur($this->getUser());
+            $activite->setProjet($projet);
+            $em->persist($activite);
             $em->flush();
 
             $this->addFlash('success', 'Projet créé avec succès ✅');
@@ -81,6 +96,14 @@ class ProjetController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
+            $activite = new Activite();
+            $activite->setTypeAction('Modification du projet');
+            $activite->setDateAction(new \DateTimeImmutable());
+            $activite->setUtilisateur($this->getUser());
+            $activite->setProjet($projet);
+            $em->persist($activite);
+            $em->flush();
+
             $this->addFlash('success', 'Projet modifié avec succès ✏️');
             return $this->redirectToRoute('projet_index');
         }
@@ -96,6 +119,12 @@ class ProjetController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+        $user = $this->getUser();
+        if ($user !== $projet->getUtilisateur() && !$projet->getMembres()->contains($user)) {
+            $this->addFlash('danger', "Tu n'as pas accès à ce projet.");
+            return $this->redirectToRoute('projet_index');
+        }
+
         return $this->render('projet/show.html.twig', [
             'projet' => $projet,
         ]);
@@ -106,14 +135,19 @@ class ProjetController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
-        // Vérification que l'utilisateur est bien le créateur du projet
         if ($this->getUser() !== $projet->getUtilisateur()) {
             $this->addFlash('danger', "Tu n'as pas le droit de supprimer ce projet.");
             return $this->redirectToRoute('projet_index');
         }
 
-        // Validation du token CSRF
         if ($this->isCsrfTokenValid('delete' . $projet->getId(), $request->request->get('_token'))) {
+            $activite = new Activite();
+            $activite->setTypeAction('Suppression du projet');
+            $activite->setDateAction(new \DateTimeImmutable());
+            $activite->setUtilisateur($this->getUser());
+            $activite->setProjet($projet);
+            $em->persist($activite);
+
             $em->remove($projet);
             $em->flush();
 

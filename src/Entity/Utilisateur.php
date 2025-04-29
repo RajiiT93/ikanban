@@ -55,10 +55,14 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Projet::class)]
     private Collection $projets;
 
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Activite::class)]
+    private Collection $activites;
+
     public function __construct()
     {
         $this->groupe = new ArrayCollection();
         $this->projets = new ArrayCollection();
+        $this->activites = new ArrayCollection();
     }
 
     // 🔐 UserInterface + PasswordAuthenticatedUserInterface
@@ -236,6 +240,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->projets->removeElement($projet)) {
             if ($projet->getUtilisateur() === $this) {
                 $projet->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activite>
+     */
+    public function getActivites(): Collection
+    {
+        return $this->activites;
+    }
+
+    public function addActivite(Activite $activite): static
+    {
+        if (!$this->activites->contains($activite)) {
+            $this->activites->add($activite);
+            $activite->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivite(Activite $activite): static
+    {
+        if ($this->activites->removeElement($activite)) {
+            // set the owning side to null (unless already changed)
+            if ($activite->getUtilisateur() === $this) {
+                $activite->setUtilisateur(null);
             }
         }
 

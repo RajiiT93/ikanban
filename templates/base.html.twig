@@ -23,12 +23,13 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">MonApp</a>
+            <a class="navbar-brand" href="#">iKanban</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
                     {% if not app.user %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('inscription') }}">Inscription</a>
@@ -37,17 +38,19 @@
                             <a class="nav-link" href="{{ path('connexion') }}">Connexion</a>
                         </li>
                     {% else %}
+                        <li class="nav-item me-3 text-white fw-bold">
+                            Bonjour, {{ app.user.nom ?? app.user.email }}
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('logout') }}">Déconnexion</a>
                         </li>
-                        {# Ajoute ici d'autres liens pour les admins si besoin #}
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Messages flash (tous types) -->
+    <!-- Messages flash -->
     <div class="container mt-3">
         {% for type, messages in app.flashes %}
             {% for message in messages %}
@@ -80,14 +83,13 @@
         <!-- Select2 JS -->
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-        <!-- Initialisation du Datepicker -->
         <script>
             $(document).ready(function () {
                 $(".datepicker").datepicker({
                     dateFormat: "yy-mm-dd"
                 });
 
-                // Initialisation de Select2 pour les listes multiples
+                // Initialisation des select multiples avec Select2
                 $('select[multiple]').select2({
                     placeholder: "Sélectionner...",
                     width: '100%',

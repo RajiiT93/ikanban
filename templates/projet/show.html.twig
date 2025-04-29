@@ -57,6 +57,24 @@
         </div>
     </div>
 
+    <div class="mb-5">
+        <h3 class="mb-3 text-secondary">📜 Historique du projet</h3>
+        {% if projet.activites is defined and projet.activites|length > 0 %}
+            <ul class="list-group">
+                {% for activite in projet.activites %}
+                    <li class="list-group-item">
+                        <strong>{{ activite.typeAction }}</strong><br>
+                        <small class="text-muted">
+                            par {{ activite.utilisateur.email }} — {{ activite.dateAction|date('d/m/Y H:i') }}
+                        </small>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Aucune activité enregistrée pour ce projet.</p>
+        {% endif %}
+    </div>
+
     <div class="mt-5 d-flex gap-3">
         <a href="{{ path('projet_index') }}" class="btn btn-secondary">⬅️ Retour à mes projets</a>
 

@@ -43,11 +43,15 @@ class Projet
     #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Invitation::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $invitations;
 
+    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Activite::class)]
+    private Collection $activites;
+
     public function __construct()
     {
         $this->membres = new ArrayCollection();
         $this->taches = new ArrayCollection();
         $this->invitations = new ArrayCollection();
+        $this->activites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +197,36 @@ class Projet
             // set the owning side to null (unless already changed)
             if ($invitation->getProjet() === $this) {
                 $invitation->setProjet(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activite>
+     */
+    public function getActivites(): Collection
+    {
+        return $this->activites;
+    }
+
+    public function addActivite(Activite $activite): static
+    {
+        if (!$this->activites->contains($activite)) {
+            $this->activites->add($activite);
+            $activite->setProjet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivite(Activite $activite): static
+    {
+        if ($this->activites->removeElement($activite)) {
+            // set the owning side to null (unless already changed)
+            if ($activite->getProjet() === $this) {
+                $activite->setProjet(null);
             }
         }
 
