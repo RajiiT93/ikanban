@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Entity\Utilisateur;
-use App\Entity\Tache;
-use App\Entity\Invitation; // Assurez-vous d'importer l'entité Invitation
+use App\Repository\ProjetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Utilisateur;
+use App\Entity\Tache;
+use App\Entity\Invitation;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProjetRepository::class)]
 class Projet
 {
     #[ORM\Id]
@@ -30,23 +31,23 @@ class Projet
     private ?\DateTimeInterface $deadline = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'projets')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Utilisateur $utilisateur = null;
 
     #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
     private Collection $membres;
 
-    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Tache::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Tache::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $taches;
 
-    // Relation OneToMany avec l'entité 'Invitation'
-    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Invitation::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'projet', targetEntity: Invitation::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $invitations;
 
     public function __construct()
     {
         $this->membres = new ArrayCollection();
         $this->taches = new ArrayCollection();
-        $this->invitations = new ArrayCollection();  // Initialisation de la collection d'invitations
+        $this->invitations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,6 +63,7 @@ class Projet
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
+
         return $this;
     }
 
@@ -73,6 +75,7 @@ class Projet
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -84,6 +87,7 @@ class Projet
     public function setStatut(?string $statut): self
     {
         $this->statut = $statut;
+
         return $this;
     }
 
@@ -95,6 +99,7 @@ class Projet
     public function setDeadline(?\DateTimeInterface $deadline): self
     {
         $this->deadline = $deadline;
+
         return $this;
     }
 
@@ -106,9 +111,13 @@ class Projet
     public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 
+    /**
+     * @return Collection<int, Utilisateur>
+     */
     public function getMembres(): Collection
     {
         return $this->membres;
@@ -119,17 +128,19 @@ class Projet
         if (!$this->membres->contains($membre)) {
             $this->membres[] = $membre;
         }
+
         return $this;
     }
 
     public function removeMembre(Utilisateur $membre): self
     {
         $this->membres->removeElement($membre);
+
         return $this;
     }
 
     /**
-     * @return Collection|Tache[]
+     * @return Collection<int, Tache>
      */
     public function getTaches(): Collection
     {
@@ -142,21 +153,25 @@ class Projet
             $this->taches[] = $tache;
             $tache->setProjet($this);
         }
+
         return $this;
     }
 
     public function removeTache(Tache $tache): self
     {
         if ($this->taches->removeElement($tache)) {
+            // set the owning side to null (unless already changed)
             if ($tache->getProjet() === $this) {
                 $tache->setProjet(null);
             }
         }
+
         return $this;
     }
 
-    // Méthodes pour gérer les invitations
-
+    /**
+     * @return Collection<int, Invitation>
+     */
     public function getInvitations(): Collection
     {
         return $this->invitations;
@@ -168,16 +183,19 @@ class Projet
             $this->invitations[] = $invitation;
             $invitation->setProjet($this);
         }
+
         return $this;
     }
 
     public function removeInvitation(Invitation $invitation): self
     {
         if ($this->invitations->removeElement($invitation)) {
+            // set the owning side to null (unless already changed)
             if ($invitation->getProjet() === $this) {
                 $invitation->setProjet(null);
             }
         }
+
         return $this;
     }
 }

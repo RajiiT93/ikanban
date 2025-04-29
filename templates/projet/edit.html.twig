@@ -7,56 +7,73 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Modifier le projet</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Modifier le projet</h1>
 
-        {{ form_start(form) }}
-            <div class="form-group mb-4">
-                {{ form_row(form.nom) }}
+    {{ form_start(form) }}
+        <div class="form-group mb-4">
+            {{ form_row(form.nom) }}
+        </div>
+        <div class="form-group mb-4">
+            {{ form_row(form.description) }}
+        </div>
+        <div class="form-group mb-4">
+            {{ form_row(form.statut) }}
+        </div>
+        <div class="form-group mb-4">
+            {{ form_row(form.deadline) }}
+        </div>
+        <div class="form-group mb-4">
+            <h5>Inviter des membres au projet</h5>
+            <div class="checkbox-group">
+                {{ form_row(form.membres) }}
             </div>
-            <div class="form-group mb-4">
-                {{ form_row(form.description) }}
-            </div>
-            <div class="form-group mb-4">
-                {{ form_row(form.statut) }}
-            </div>
-            <div class="form-group mb-4">
-                {{ form_row(form.deadline) }}
-            </div>
+        </div>
 
-            <!-- Affichage des membres invités sous forme de liste -->
-            <div class="form-group mb-4">
-                <h5>Membres invités au projet</h5>
-                <ul class="list-group">
-                    {% for membre in projet.membres %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ membre.email }}
-                            <span class="badge bg-info">{{ membre.role }}</span>
-                        </li>
-                    {% else %}
-                        <li class="list-group-item text-muted">Aucun membre invité pour le moment.</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ path('projet_index') }}" class="btn btn-secondary">⬅️ Retour</a>
+            <button type="submit" class="btn btn-warning btn-lg">Modifier</button>
+        </div>
+    {{ form_end(form) }}
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-warning btn-lg">
-                    Modifier
-                </button>
-            </div>
-        {{ form_end(form) }}
-    </div>
+    {% if app.user and app.user == projet.utilisateur %}
+        <div class="text-center mt-4">
+            <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" onsubmit="return confirm('Es-tu sûr de vouloir supprimer ce projet ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                <button class="btn btn-danger">🗑️ Supprimer ce projet</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <style>
-        /* Conteneur du formulaire */
+        .checkbox-group label {
+            display: block;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .checkbox-group label:hover {
+            background-color: #e9ecef;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
         .container {
             max-width: 800px;
             padding: 20px;
         }
 
-        /* Titre de la page */
         h1 {
             font-size: 2.5rem;
             font-weight: bold;
@@ -64,7 +81,6 @@
             text-align: center;
         }
 
-        /* Style des champs de formulaire */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -82,7 +98,6 @@
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
         }
 
-        /* Bouton Modifier stylisé */
         .btn-warning {
             font-size: 1.2rem;
             font-weight: bold;
@@ -97,7 +112,12 @@
             transform: translateY(-2px);
         }
 
-        /* Espacement vertical entre les sections */
+        .btn-danger {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
         .mt-5 {
             margin-top: 5rem;
         }
@@ -108,26 +128,6 @@
 
         .text-center {
             text-align: center;
-        }
-
-        /* Style de la liste des membres invités */
-        .list-group-item {
-            font-size: 1rem;
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        .badge {
-            font-size: 0.9rem;
-            padding: 6px 12px;
-        }
-
-        .badge.bg-info {
-            background-color: #17a2b8;
-        }
-
-        .list-group-item:hover {
-            background-color: #f8f9fa;
         }
     </style>
 {% endblock %}

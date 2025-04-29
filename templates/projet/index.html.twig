@@ -45,6 +45,15 @@
 
         <!-- Contenu principal -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show mt-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
             <div id="projets-crees" class="mt-4">
                 <h2 class="text-primary">Projets créés</h2>
                 {% if projetsCrees is not empty %}
@@ -67,6 +76,10 @@
                                         <div class="d-flex justify-content-between">
                                             <a href="{{ path('projet_edit', {'id': projet.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
                                             <a href="{{ path('projet_show', {'id': projet.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                                            <form method="post" action="{{ path('projet_delete', {'id': projet.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.id) }}">
+                                                <button class="btn btn-danger btn-sm">Supprimer</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -106,12 +119,10 @@
         </main>
     </div>
 </div>
-
 {% endblock %}
 
 {% block stylesheets %}
     <style>
-        /* Barre de navigation en haut */
         .navbar {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -129,7 +140,6 @@
             font-size: 1rem;
         }
 
-        /* Styles du menu latéral */
         #sidebar {
             background-color: #f8f9fa;
             border-right: 1px solid #ddd;
@@ -156,9 +166,8 @@
             color: white;
         }
 
-        /* Contenu principal */
         main {
-            margin-left: 250px; /* Assurer l'espace pour le menu latéral */
+            margin-left: 250px;
             padding: 30px;
             background-color: #f8f9fa;
         }
@@ -184,13 +193,11 @@
             font-size: 0.9rem;
         }
 
-        /* Style général du titre */
         .text-primary, .text-info {
             font-size: 1.5rem;
             font-weight: bold;
         }
 
-        /* Espacement entre les sections */
         .mt-4 {
             margin-top: 2rem;
         }

@@ -106,11 +106,13 @@ class ProjetController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+        // Vérification que l'utilisateur est bien le créateur du projet
         if ($this->getUser() !== $projet->getUtilisateur()) {
             $this->addFlash('danger', "Tu n'as pas le droit de supprimer ce projet.");
             return $this->redirectToRoute('projet_index');
         }
 
+        // Validation du token CSRF
         if ($this->isCsrfTokenValid('delete' . $projet->getId(), $request->request->get('_token'))) {
             $em->remove($projet);
             $em->flush();
